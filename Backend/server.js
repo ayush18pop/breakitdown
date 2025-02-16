@@ -4,9 +4,12 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
+const axios = require("axios");
+const fs = require("fs");
+const { Parser } = require("json2csv");
+const AnkiExport = require("anki-apkg-export").default;
 const User = require("./models/User"); // Import User model
 const datageneration = require("./datageneration"); // Import function 
-// properly
 const { addFlashcardToAnki, generateBackContent, model } = require("./ankiService");
 const { auth } = require("express-oauth2-jwt-bearer");
 
@@ -141,13 +144,6 @@ app.post("/api/user/card", checkJwt, async (req, res) => {
     console.log("Saved card for user:", user);
 
     // Save flashcard to Gemini
-    const geminiResponse = await axios.post('https://api.gemini.com/v1/flashcards', {
-      title,
-      content,
-      userId: user._id
-    });
-
-    console.log("Saved card to Gemini:", geminiResponse.data);
 
     // Convert flashcard to CSV
     const fields = ['title', 'content'];
@@ -165,6 +161,13 @@ app.post("/api/user/card", checkJwt, async (req, res) => {
 
     const zip = await ankiDeck.save();
     const zipPath = `./decks/${user._id}.apkg`;
+
+    // Ensure the decks directory exists
+    const decksDir = './decks';
+    if (!fs.existsSync(decksDir)) {
+      fs.mkdirSync(decksDir);
+    }
+
     fs.writeFileSync(zipPath, zip);
 
     console.log("Generated ANKI deck:", zipPath);
@@ -189,6 +192,7 @@ app.post("/api/user/card", checkJwt, async (req, res) => {
     });
   }
 });
+
 app.post("/api/anki/add", checkJwt, async (req, res) => {
   try {
     let { front, back } = req.body;
