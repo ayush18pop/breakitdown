@@ -7,6 +7,8 @@ const cors = require("cors");
 const User = require("./models/User"); // Import User model
 const datageneration = require("./datageneration"); // Import function
 const axios = require("axios");
+const { Parser } = require("json2csv");
+const AnkiExport = require("anki-apkg-export");
 // properly
 const {
   addFlashcardToAnki,
@@ -213,16 +215,16 @@ app.post("/api/user/card", checkJwt, async (req, res) => {
     console.log("Saved card for user:", user);
 
     // Save flashcard to Gemini
-    const geminiResponse = await axios.post(
-      "https://api.gemini.com/v1/flashcards",
-      {
-        title,
-        content,
-        userId: user._id,
-      }
-    );
+    // const geminiResponse = await axios.post(
+    //   "https://api.gemini.com/v1/flashcards",
+    //   {
+    //     title,
+    //     content,
+    //     userId: user._id,
+    //   }
+    // );
 
-    console.log("Saved card to Gemini:", geminiResponse.data);
+    // console.log("Saved card to Gemini:", geminiResponse.data);
 
     // Convert flashcard to CSV
     const fields = ["title", "content"];
