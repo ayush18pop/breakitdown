@@ -1,49 +1,83 @@
+import React, { useEffect, useState } from 'react';
+import { useAuth0 } from '@auth0/auth0-react';
+import Tooltip from './Tooltip'; // Import the Tooltip component
+
 const Consistency = () => {
-    // Updated to represent a year's worth of weekly data (52 weeks)
-    const activityData = Array(52 * 7).fill(false).map((_, index) => index % 7 === 0);
-    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  
-    return (
-      <div className="activity-grid">
-        <h3>Activity</h3>
-  
-        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start' }}>
-          {/* Days Header (Vertical) */}
-          <div style={{ display: 'flex', flexDirection: 'column', marginRight: '10px' }}>
-            {daysOfWeek.map((day, index) => (
-              <div key={index} style={{ height: '20px', textAlign: 'right', paddingRight: '10px', fontWeight: 'bold' }}>
-                {day}
-              </div>
-            ))}
-          </div>
-  
-          {/* Activity Grid (Vertical) */}
-          <div style={{ display: 'flex', flexDirection: 'row' }}>
-            {Array.from({ length: 52 }, (_, weekIndex) => (
-              <div key={weekIndex} style={{ display: 'flex', flexDirection: 'column' }}>
-                {daysOfWeek.map((_, dayIndex) => {
-                  const cellIndex = weekIndex * 7 + dayIndex;
-                  return (
-                    <div
-                      key={cellIndex}
-                      className={`grid-cell ${activityData[cellIndex] ? 'active' : ''}`}
-                      style={{
-                        width: '20px',
-                        height: '20px',
-                        border: '1px solid #ccc',
-                        backgroundColor: activityData[cellIndex] ? '#4caf50' : '#e0e0e0',
-                      }}
-                    ></div>
-                  );
-                })}
-              </div>
-            ))}
-          </div>
-        </div>
+  const { getAccessTokenSilently } = useAuth0();
+  const [activityData, setActivityData] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchCardsStudied = async () => {
+      try {
+        const token = await getAccessTokenSilently();
+        const response = await fetch('http://localhost:3000/api/cardsStudied', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch cards studied');
+        }
+
+        const cardsStudiedData = await response.json();
+        setActivityData(cardsStudiedData);
+      } catch (err) {
+        setError(err.message);
+        console.error('Error fetching cards studied:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCardsStudied();
+  }, [getAccessTokenSilently]);
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error}</p>;
+
+  // Generate the grid for the past year (52 weeks)
+  const totalDays = 39; // Total columns for 52 weeks
+  const today = new Date();
+  const grid = [];
+
+  // Create 7 rows
+  for (let row = 0; row < 7; row++) {
+    const weekRow = [];
+    for (let col = 0; col < totalDays; col++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() - (col * 7 + row)); // Adjust date for each column and row
+      const dateString = date.toISOString().split('T')[0]; // Format YYYY-MM-DD
+      const studiedCount = activityData[dateString]?.numberOfCards || 0;
+
+      weekRow.push(
+        <Tooltip key={`${dateString}-${row}`} content={`${dateString}: ${studiedCount} card(s) studied`}>
+          <div
+            className={`w-5 h-5 border ${studiedCount > 0 ? 'bg-green-500' : 'bg-gray-300'} m-1`} // Tailwind classes
+          ></div>
+        </Tooltip>
+      );
+    }
+    grid.push(
+      <div key={row} className="flex flex-row"> {/* Each row is a flex row */}
+        {weekRow}
       </div>
     );
-  };
-  
-  export default Consistency;
+  }
+
+  return (
+    <div className="flex flex-col items-center">
+      <h3 className="text-lg font-semibold">Activity</h3>
+      <div className="flex flex-col">
+        {grid}
+      </div>
+    </div>
+  );
+};
+
+export default Consistency;
   

@@ -15,6 +15,17 @@ const cardSchema = new mongoose.Schema({
   },
 });
 
+const cardStudiedSchema = new mongoose.Schema({
+  dateStudied: {
+    type: Date,
+    required: true,
+  },
+  numberOfCards: {
+    type: Number,
+    required: true,
+  },
+});
+
 const userSchema = new mongoose.Schema({
   auth0Id: {
     type: String,
@@ -34,7 +45,21 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  cards: [cardSchema], // Embedding cardSchema as a sub-collection
+  cards: [cardSchema],
+  cardsStudied: {
+    type: Map,
+    of: {
+      dateStudied: {
+        type: Date,
+        required: true,
+      },
+      numberOfCards: {
+        type: Number,
+        required: true,
+      },
+    },
+  },
+  // Embedding cardSchema as a sub-collection
 });
 
 module.exports = mongoose.model("User", userSchema);
