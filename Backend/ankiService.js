@@ -1,0 +1,50 @@
+const axios = require("axios");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+
+require("dotenv").config();
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+
+async function generateBackContent(front) {
+  try {
+    const prompt = `Provide a concise but effective explanation for the following learning prompt in under 50 words:
+    
+    "${front}"`;
+
+    const result = await model.generateContent(prompt);
+    const responseText = await result.response.text();
+    return responseText.replace(/```json|```/g, "").trim();
+  } catch (error) {
+    console.error("❌ Error generating back content:", error);
+    return "Explanation not available.";
+  }
+}
+
+async function addFlashcardToAnki(front) {
+  try {
+    const back = await generateBackContent(front); // Generate the back dynamically
+
+    const response = await axios.post("http://localhost:8765", {
+      action: "addNote",
+      version: 6,
+      params: {
+        note: {
+          deckName: "Default",
+          modelName: "Basic",
+          fields: { Front: front, Back: back },
+          options: { allowDuplicate: false },
+          tags: ["flashcards"],
+        },
+      },
+    });
+
+    console.log("✅ Flashcard added to Anki:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("❌ Anki Error:", error.response ? error.response.data : error.message);
+    return null;
+  }
+}
+
+module.exports = { addFlashcardToAnki, generateBackContent, model };
