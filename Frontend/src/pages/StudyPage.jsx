@@ -15,7 +15,6 @@ import { useAuth0 } from '@auth0/auth0-react';
 
 jellyTriangle.register()
 
-// Default values shown
 
 const API_URL = "http://localhost:3000/api/data";
 const SAVE_CARD_URL = "http://localhost:3000/api/user/card";
@@ -172,9 +171,7 @@ function StudyPage({ subject, topic, additionalReq, setSubject, setTopic, setAdd
       console.log("Incorrect answer!");
     }
   };
-  const handleUpcomingTopicClick = (subject,topic,additionalReq) => {
-    console.log(subject,topic,additionalReq);
-  };
+  
   return (
     <div className="relative flex-1 flex justify-center items-center">
       {loading ? (
