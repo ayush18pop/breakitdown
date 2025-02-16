@@ -10,20 +10,15 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { jellyTriangle } from 'ldrs'
-
 import { useNavigate } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
 
-
 jellyTriangle.register()
 
-// Default values shown
 
 const API_URL = "http://localhost:3000/api/data";
 
-
 function StudyPage({ subject, topic, additionalReq, setSubject, setTopic, setAdditionalReq }) {
-
   const [data, setData] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -31,7 +26,6 @@ function StudyPage({ subject, topic, additionalReq, setSubject, setTopic, setAdd
   const [selectedOption, setSelectedOption] = useState(null);
   const navigate = useNavigate();
   const { isAuthenticated, getAccessTokenSilently } = useAuth0();
-
 
   const fetchData = async (subject, topic, additionalReq) => {
     console.log('Fetching data with:', { subject, topic, additionalReq });
@@ -63,7 +57,6 @@ function StudyPage({ subject, topic, additionalReq, setSubject, setTopic, setAdd
     }
   };
 
-
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('/');
@@ -90,9 +83,17 @@ function StudyPage({ subject, topic, additionalReq, setSubject, setTopic, setAdd
     }
   };
 
-  const handleUpcomingTopicClick = (subject,topic,additionalReq) => {
-    console.log(subject,topic,additionalReq);
+  const handleOptionClick = (option) => {
+    setSelectedOption(option);
+    if(option === currentSection.answer) {
+      
+      console.log("Correct answer!");
+    } else {
+      // Handle incorrect answer
+      console.log("Incorrect answer!");
+    }
   };
+  
   return (
     <div className="relative flex-1 flex justify-center items-center">
       {loading ? (
@@ -150,7 +151,7 @@ function StudyPage({ subject, topic, additionalReq, setSubject, setTopic, setAdd
                       variant='ghost' 
                       key={index} 
                       className="p-2 border rounded-md mb-2" 
-                      onClick={() =>{ setCurrentIndex(0)}}
+                      onClick={() =>{ setTopic(topic); setCurrentIndex(0)}}
                     >
                       {topic}
                     </Button>
