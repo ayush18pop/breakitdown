@@ -25,6 +25,7 @@ function StudyPage({ subject, topic, additionalReq, setSubject, setTopic, setAdd
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [history, setHistory] = useState([]);
   const [selectedOption, setSelectedOption] = useState(null);
   const navigate = useNavigate();
   const { isAuthenticated, getAccessTokenSilently } = useAuth0();
@@ -96,13 +97,59 @@ function StudyPage({ subject, topic, additionalReq, setSubject, setTopic, setAdd
     fetchData(subject, topic, additionalReq);
   }, [isAuthenticated, navigate, subject, topic, additionalReq]);
 
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        const token = await getAccessTokenSilently();
+        const response = await fetch('http://localhost:3000/api/user/history', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = await response.json();
+        setHistory(data.history);
+      } catch (error) {
+        console.error('Error fetching history:', error);
+      }
+    };
+
+    fetchHistory();
+  }, [getAccessTokenSilently]);
+
   if (loading) return <p className="text-center text-lg">Loading...</p>;
   if (error) return <p className="text-center text-lg text-red-500">Error: {error}</p>;
   if (!data || !data.sections || data.sections.length === 0) return <p className="text-center text-lg">No data available.</p>;
 
   const currentSection = data.sections[currentIndex];
 
-  const handleNext = () => {
+  const handleNext = async () => {
+    if (!data || !data.sections || data.sections.length === 0) return;
+  
+    const currentSection = data.sections[currentIndex];
+    const title = currentSection.type === "teaching" ? "Teaching" : "Question";
+    const content = currentSection.content || currentSection.question;
+  
+    try {
+      const token = await getAccessTokenSilently();
+      const response = await fetch(SAVE_CARD_URL, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ title, content })
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to save card');
+      }
+  
+      const result = await response.json();
+      console.log('Card saved to history:', result);
+    } catch (err) {
+      console.error('Error saving card to history:', err);
+    }
+  
     if (currentIndex < data.sections.length - 1) {
       setCurrentIndex(currentIndex + 1);
     }
@@ -175,6 +222,7 @@ function StudyPage({ subject, topic, additionalReq, setSubject, setTopic, setAdd
   const handleUpcomingTopicClick = (subject,topic,additionalReq) => {
     console.log(subject,topic,additionalReq);
   };
+
   return (
     <div className="relative flex-1 flex justify-center items-center">
       {loading ? (
@@ -196,6 +244,7 @@ function StudyPage({ subject, topic, additionalReq, setSubject, setTopic, setAdd
             </CardDescription>
           </CardHeader>
           <CardContent>
+        
             {currentSection?.type === "teaching" && <p className="text-black/80 font-serif">{currentSection.content}</p>}
 
             {currentSection?.type === "question" && (

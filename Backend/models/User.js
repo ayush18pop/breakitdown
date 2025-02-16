@@ -35,6 +35,13 @@ const userSchema = new mongoose.Schema({
     default: Date.now,
   },
   cards: [cardSchema], // Embedding cardSchema as a sub-collection
+  history: [
+    {
+      title: { type: String, required: true },
+      content: { type: String, required: true },
+      learnedAt: { type: Date, default: Date.now },
+    },
+  ],
 });
 
 module.exports = mongoose.model("User", userSchema);

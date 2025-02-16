@@ -1,5 +1,5 @@
-// src/pages/AdminDashboard.js
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const AdminDashboard = () => {
   return (
@@ -26,6 +26,15 @@ const AdminDashboard = () => {
           <button className="mt-4 bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600">
             View Analytics
           </button>
+        </div>
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold mb-2">History</h2>
+          <p>View learned cards history.</p>
+          <Link to="/history">
+            <button className="mt-4 bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">
+              View History
+            </button>
+          </Link>
         </div>
       </div>
     </div>

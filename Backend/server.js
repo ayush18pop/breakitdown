@@ -143,8 +143,13 @@ app.post("/api/user/card", checkJwt, async (req, res) => {
 
     console.log("Saved card for user:", user);
 
-    // Save flashcard to Gemini
+    user.history.push({ title, content });
+    if (user.history.length > 15) {
+      user.history.shift(); // Remove the oldest card if history exceeds 15 cards
+    }
+    await user.save();
 
+    console.log("Updated history for user:", user.history);
     // Convert flashcard to CSV
     const fields = ['title', 'content'];
     const opts = { fields };
@@ -192,7 +197,21 @@ app.post("/api/user/card", checkJwt, async (req, res) => {
     });
   }
 });
+app.get("/api/user/history", checkJwt, async (req, res) => {
+  try {
+    const auth0Id = req.auth.payload.sub; // Get Auth0 ID from token
+    const user = await User.findOne({ auth0Id });
 
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.json({ history: user.history });
+  } catch (error) {
+    console.error("Error fetching history:", error);
+    res.status(500).json({ error: "Failed to fetch history" });
+  }
+});
 app.post("/api/anki/add", checkJwt, async (req, res) => {
   try {
     let { front, back } = req.body;
