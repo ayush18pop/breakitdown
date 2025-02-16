@@ -4,13 +4,8 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
-const axios = require("axios");
-const fs = require("fs");
-const { Parser } = require("json2csv");
-const AnkiExport = require("anki-apkg-export").default;
 const User = require("./models/User"); // Import User model
-const datageneration = require("./datageneration"); // Import function 
-const { addFlashcardToAnki, generateBackContent, model } = require("./ankiService");
+const datageneration = require("./datageneration"); // Import function properly
 const { auth } = require("express-oauth2-jwt-bearer");
 
 const app = express();
@@ -74,24 +69,22 @@ app.post("/api/user", checkJwt, async (req, res) => {
       return res.status(400).json({ error: "Email is required" });
     }
 
-    // First try to find the user
     let user = await User.findOne({ auth0Id });
 
     if (user) {
-      // Update existing user
       user.email = email;
       user.name = name;
       user.picture = picture;
       user.lastLogin = new Date();
       await user.save();
     } else {
-      // Create new user
       user = new User({
         auth0Id,
         email,
         name,
         picture,
         lastLogin: new Date(),
+        cardsStudied: new Map(),
       });
       await user.save();
     }
@@ -243,6 +236,7 @@ app.post("/api/anki/add", checkJwt, async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
 
 // Start the Express server
 app.listen(port, () => {
