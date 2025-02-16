@@ -17,6 +17,7 @@ jellyTriangle.register()
 
 
 const API_URL = "http://localhost:3000/api/data";
+const SAVE_CARD_URL = "http://localhost:3000/api/user/card";
 
 function StudyPage({ subject, topic, additionalReq, setSubject, setTopic, setAdditionalReq }) {
   const [data, setData] = useState(null);
@@ -57,6 +58,35 @@ function StudyPage({ subject, topic, additionalReq, setSubject, setTopic, setAdd
     }
   };
 
+  const handleSaveCard = async () => {
+    if (!data || !data.sections || data.sections.length === 0) return;
+
+    const currentSection = data.sections[currentIndex];
+    const title = currentSection.type === "teaching" ? "Teaching" : "Question";
+    const content = currentSection.content || currentSection.question;
+
+    try {
+      const token = await getAccessTokenSilently();
+      const response = await fetch(SAVE_CARD_URL, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ title, content })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save card');
+      }
+
+      const result = await response.json();
+      console.log('Card saved:', result);
+    } catch (err) {
+      console.error('Error saving card:', err);
+    }
+  };
+
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('/');
@@ -83,6 +113,54 @@ function StudyPage({ subject, topic, additionalReq, setSubject, setTopic, setAdd
     }
   };
 
+  const handleAddToAnki = async () => {
+    if (!data || !data.sections || data.sections.length === 0) return;
+  
+    const currentSection = data.sections[currentIndex];
+    const front = currentSection.content || currentSection.question;
+    let back = currentSection.answer || "";
+  
+    try {
+      const token = await getAccessTokenSilently();
+  
+      // 🔹 Auto-generate back content if missing
+      if (!back.trim()) {
+        console.log("🔄 Fetching AI-generated back content...");
+        const genResponse = await fetch("http://localhost:3000/api/generate-back", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ front }),
+        });
+  
+        if (!genResponse.ok) throw new Error("Failed to generate back content");
+        const genData = await genResponse.json();
+        back = genData.back;
+      }
+  
+      // 🔹 Send to Anki
+      const response = await fetch("http://localhost:3000/api/anki/add", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ front, back }),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to add to Anki");
+      }
+  
+      const result = await response.json();
+      console.log("✅ Added to Anki:", result);
+    } catch (err) {
+      console.error("❌ Error adding to Anki:", err);
+    }
+  };
+
+  
   const handleOptionClick = (option) => {
     setSelectedOption(option);
     if(option === currentSection.answer) {
@@ -169,10 +247,13 @@ function StudyPage({ subject, topic, additionalReq, setSubject, setTopic, setAdd
               >
                 Previous
               </Button>
-              <Button variant="outline">
+               <Button variant="outline" onClick={handleSaveCard}>
                 <Bookmark className="mr-2" />
                 Save
               </Button>
+              <Button variant="outline" onClick={handleAddToAnki}>
+              🃏 Add to Anki
+               </Button>
               <Button 
                 onClick={handleNext} 
                 disabled={currentIndex === data.sections.length - 1}

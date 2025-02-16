@@ -5,7 +5,9 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
 const User = require("./models/User"); // Import User model
-const datageneration = require("./datageneration"); // Import function properly
+const datageneration = require("./datageneration"); // Import function 
+// properly
+const { addFlashcardToAnki, generateBackContent, model } = require("./ankiService");
 const { auth } = require("express-oauth2-jwt-bearer");
 
 const app = express();
@@ -99,6 +101,123 @@ app.post("/api/user", checkJwt, async (req, res) => {
       error: error.message,
       stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
     });
+  }
+});
+
+app.post("/api/generate-back", async (req, res) => {
+  try {
+    const { front } = req.body;
+    if (!front) return res.status(400).json({ error: "Front content is required" });
+
+    const back = await generateBackContent(front);
+
+    res.json({ back: back.trim() || "Explanation not available." });
+  } catch (error) {
+    console.error("❌ Error generating back content:", error);
+    res.status(500).json({ error: "Failed to generate back content" });
+  }
+});
+
+app.post("/api/user/card", checkJwt, async (req, res) => {
+  try {
+    const auth0Id = req.auth.payload.sub; // Get Auth0 ID from token
+    const { title, content } = req.body;
+
+    if (!title || !content) {
+      return res.status(400).json({ error: "Title and content are required" });
+    }
+
+    // Find the user
+    let user = await User.findOne({ auth0Id });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Add the new card to the user's cards sub-collection
+    user.cards.push({ title, content });
+    await user.save();
+
+    console.log("Saved card for user:", user);
+
+    // Save flashcard to Gemini
+    const geminiResponse = await axios.post('https://api.gemini.com/v1/flashcards', {
+      title,
+      content,
+      userId: user._id
+    });
+
+    console.log("Saved card to Gemini:", geminiResponse.data);
+
+    // Convert flashcard to CSV
+    const fields = ['title', 'content'];
+    const opts = { fields };
+    const parser = new Parser(opts);
+    const csv = parser.parse(user.cards);
+
+    console.log("Converted flashcards to CSV:", csv);
+
+    // Generate ANKI cards
+    const ankiDeck = new AnkiExport('My Deck');
+    user.cards.forEach(card => {
+      ankiDeck.addCard(card.title, card.content);
+    });
+
+    const zip = await ankiDeck.save();
+    const zipPath = `./decks/${user._id}.apkg`;
+    fs.writeFileSync(zipPath, zip);
+
+    console.log("Generated ANKI deck:", zipPath);
+
+    // Save to ANKI using ANKI Connect API
+    const ankiConnectResponse = await axios.post('http://localhost:8765', {
+      action: 'importPackage',
+      version: 6,
+      params: {
+        path: zipPath
+      }
+    });
+
+    console.log("Saved deck to ANKI:", ankiConnectResponse.data);
+
+    res.json(user);
+  } catch (error) {
+    console.error("Server error details:", error);
+    res.status(500).json({
+      error: error.message,
+      stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
+    });
+  }
+});
+app.post("/api/anki/add", checkJwt, async (req, res) => {
+  try {
+    let { front, back } = req.body;
+    if (!front) return res.status(400).json({ error: "Front field is required" });
+
+    // If back is missing, generate it first
+    if (!back || back.trim() === "") {
+      console.log("🔄 Generating missing back content...");
+      const genResponse = await fetch("http://localhost:3000/api/generate-back", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ front }),
+      });
+
+      if (!genResponse.ok) throw new Error("Failed to generate back content");
+      const genResult = await genResponse.json();
+      back = genResult.back;
+    }
+
+    // Save to Anki
+    const response = await addFlashcardToAnki(front, back);
+    if (response?.result) {
+      res.json({ success: true, message: "✅ Flashcard added to Anki", result: response.result });
+    } else {
+      res.status(500).json({ error: "❌ Failed to add flashcard to Anki" });
+    }
+  } catch (error) {
+    console.error("❌ Anki Error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 

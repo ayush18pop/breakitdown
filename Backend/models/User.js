@@ -1,5 +1,20 @@
 const mongoose = require("mongoose");
 
+const cardSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: true,
+  },
+  content: {
+    type: String,
+    required: true,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
 const userSchema = new mongoose.Schema({
   auth0Id: {
     type: String,
@@ -19,6 +34,7 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  cards: [cardSchema], // Embedding cardSchema as a sub-collection
 });
 
 module.exports = mongoose.model("User", userSchema);
