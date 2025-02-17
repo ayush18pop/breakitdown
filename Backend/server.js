@@ -23,33 +23,13 @@ const app = express();
 const port = process.env.PORT || 3000;
 // Middleware - Order is important!
 app.use(express.json()); // This needs to come before routes
-const allowedOrigins = [
-  "http://localhost:5173", // Local Development
-  "https://breakitdown-app.netlify.app", // Netlify Frontend
-  "https://breakitdown-psi.vercel.app", // Your production backend
-];
-
 app.use(
   cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, origin);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: [
-      "Content-Type",
-      "Authorization",
-      "subject",
-      "topic",
-      "additionalReq",
-    ],
-    credentials: true, // Allow cookies and authentication headers
+    origin: "https://breakitdown-app.netlify.app", // Allow your frontend origin
+    methods: ["GET", "POST", "PUT", "DELETE"], // Specify allowed methods
+    credentials: true, // Allow credentials if needed
   })
 );
-
 // MongoDB Connection
 mongoose
   .connect(process.env.MONGODB_URI)
