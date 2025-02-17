@@ -12,7 +12,7 @@ const Profile = () => {
       try {
         const token = await getAccessTokenSilently();
         console.log("TOKEN IS ",token);
-        const response = await fetch('https://breakitdown-psi.vercel.app/api/userDetails', {
+        const response = await fetch('https://breakitdown-ruby.vercel.app/api/userDetails', {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,

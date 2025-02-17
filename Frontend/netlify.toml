@@ -4,7 +4,7 @@
 
 [[redirects]]
   from = "/api/*"
-  to = "https://breakitdown-psi.vercel.app/api/:splat"
+  to = "https://breakitdown-ruby.vercel.app/api/:splat"
   status = 200
   force = true
 

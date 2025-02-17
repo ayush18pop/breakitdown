@@ -9,7 +9,7 @@ const History = () => {
     const fetchHistory = async () => {
       try {
         const token = await getAccessTokenSilently();
-        const response = await fetch('https://breakitdown-psi.vercel.app/api/user/history', {
+        const response = await fetch('https://breakitdown-ruby.vercel.app/api/user/history', {
           headers: {
             Authorization: `Bearer ${token}`,
           },

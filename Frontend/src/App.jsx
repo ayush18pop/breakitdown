@@ -40,7 +40,7 @@ function AppContent() {
             picture: user.picture
           });
 
-          const response = await fetch('https://breakitdown-psi.vercel.app/api/user', {
+          const response = await fetch('https://breakitdown-ruby.vercel.app/api/user', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

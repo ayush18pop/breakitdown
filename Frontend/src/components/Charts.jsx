@@ -25,7 +25,7 @@ const Charts = () => {
     const fetchCardsStudied = async () => {
       try {
         const token = await getAccessTokenSilently();
-        const response = await fetch('https://breakitdown-psi.vercel.app/api/cardsStudied', {
+        const response = await fetch('https://breakitdown-ruby.vercel.app/api/cardsStudied', {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,

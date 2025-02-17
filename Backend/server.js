@@ -319,7 +319,7 @@ app.post("/api/anki/add", checkJwt, async (req, res) => {
     if (!back || back.trim() === "") {
       console.log("🔄 Generating question for flashcard...");
       const genResponse2 = await fetch(
-        "https://breakitdown-psi.vercel.app/api/generate-front",
+        "https://breakitdown-ruby.vercel.app/api/generate-front",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -328,7 +328,7 @@ app.post("/api/anki/add", checkJwt, async (req, res) => {
       );
       console.log("🔄 Generating missing back content...");
       const genResponse = await fetch(
-        "https://breakitdown-psi.vercel.app/api/generate-back",
+        "https://breakitdown-ruby.vercel.app/api/generate-back",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
