@@ -69,7 +69,9 @@ app.get("/api/data", checkJwt, async (req, res) => {
     res.status(500).json({ error: "Error generating content" });
   }
 });
-
+app.get("/", (req, res) => {
+  res.send("Server is running and the / route is working!");
+});
 // Create or update user after successful Auth0 login
 app.post("/api/user", checkJwt, async (req, res) => {
   try {
