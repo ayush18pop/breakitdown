@@ -121,12 +121,15 @@ function AppContent() {
 
               {isAuthenticated ? (
                 <li>
-                  <button 
-                    onClick={() => logout({ returnTo: window.location.origin })}
-                    className="text-black/80 hover:text-black transition-colors"
-                  >
-                    Logout
-                  </button>
+                <button 
+  onClick={() => {
+    localStorage.removeItem('studyPageState'); // Clear the study page state from local storage
+    logout({ returnTo: window.location.origin });
+  }}
+  className="text-black/80 hover:text-black transition-colors"
+>
+  Logout
+</button>
                 </li>
               ) : null}
             </ul>

@@ -32,6 +32,28 @@ function StudyPage({ subject, topic, additionalReq, setSubject, setTopic, setAdd
   const navigate = useNavigate();
   const { isAuthenticated, getAccessTokenSilently } = useAuth0();
 
+
+  useEffect(() => {
+    localStorage.setItem('studyPageState', JSON.stringify({
+      data,
+      currentIndex,
+      history,
+      selectedOption,
+    }));
+  }, [data, currentIndex, history, selectedOption]);
+
+  // Load state from local storage
+  useEffect(() => {
+    const savedState = localStorage.getItem('studyPageState');
+    if (savedState) {
+      const { data, currentIndex, history, selectedOption } = JSON.parse(savedState);
+      setData(data);
+      setCurrentIndex(currentIndex);
+      setHistory(history);
+      setSelectedOption(selectedOption);
+    }
+  }, []);
+  
   const fetchData = async (subject, topic, additionalReq) => {
     console.log('Fetching data with:', { subject, topic, additionalReq });
     setLoading(true);

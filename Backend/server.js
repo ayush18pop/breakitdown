@@ -193,6 +193,28 @@ app.post("/api/generate-back", async (req, res) => {
   }
 });
 
+app.get('/api/user/saved-cards', checkJwt, async (req, res) => {
+  try {
+    const auth0Id = req.auth.payload.sub; // Get Auth0 ID from token
+
+    // Find the user
+    let user = await User.findOne({ auth0Id });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({ cards: user.cards });
+  } catch (error) {
+    console.error('Error fetching saved cards:', error);
+    res.status(500).json({
+      error: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+    });
+  }
+});
+
+
 app.post("/api/user/card", checkJwt, async (req, res) => {
   try {
     const auth0Id = req.auth.payload.sub; // Get Auth0 ID from token
