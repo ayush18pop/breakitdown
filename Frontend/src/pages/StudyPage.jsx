@@ -381,9 +381,9 @@ function StudyPage({ subject, topic, additionalReq, setSubject, setTopic, setAdd
               <span>Save</span>
             </Button>
 
-            <Button variant="outline" className="flex items-center space-x-2 text-lg" onClick={handleAddToAnki}>
+            <Button variant="outline" className="flex items-center space-x-2 text-lg" >
               <PlusCircle className="w-5 h-5" />
-              <span>Add to Anki</span>
+              <span>Anki(Coming Soon)</span>
             </Button>
 
             <Button 

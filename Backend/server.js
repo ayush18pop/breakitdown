@@ -353,6 +353,7 @@ app.post("/api/anki/add", checkJwt, async (req, res) => {
         result: response.result,
       });
     } else {
+      console.log(res);
       res.status(500).json({ error: "❌ Failed to add flashcard to Anki" });
     }
   } catch (error) {
