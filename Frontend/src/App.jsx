@@ -3,7 +3,6 @@ import { Auth0Provider, useAuth0 } from '@auth0/auth0-react';
 import { authConfig } from './auth0-config';
 import StudyPage from "./pages/StudyPage";
 import AdminDashboard from "./pages/AdminDashboard";
-import History from "./pages/History";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import axios from 'axios';
@@ -113,11 +112,7 @@ function AppContent() {
                   Dashboard
                 </Link>
               </li>
-              <li>
-                <Link to="/history" className="text-black/80 hover:text-black transition-colors">
-                  History
-                </Link>
-              </li>
+
               {isAuthenticated ? (
                 <li>
                   <button 
@@ -168,16 +163,6 @@ function AppContent() {
             element={
               isAuthenticated ? (
                 <AdminDashboard />
-              ) : (
-                <Navigate to="/" replace />
-              )
-            } 
-          />
-          <Route 
-            path="/history" 
-            element={
-              isAuthenticated ? (
-                <History />
               ) : (
                 <Navigate to="/" replace />
               )

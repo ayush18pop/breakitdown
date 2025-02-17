@@ -19,6 +19,8 @@ jellyTriangle.register()
 
 const API_URL = "http://localhost:3000/api/data";
 const SAVE_CARD_URL = "http://localhost:3000/api/user/card";
+const INCREASE_CARDS_STUDIED_URL = "http://localhost:3000/api/increase-cards-studied";
+const SAVE_HISTORY_URL = "http://localhost:3000/api/user/history-save";
 
 function StudyPage({ subject, topic, additionalReq, setSubject, setTopic, setAdditionalReq }) {
   const [data, setData] = useState(null);
@@ -39,7 +41,7 @@ function StudyPage({ subject, topic, additionalReq, setSubject, setTopic, setAdd
       const response = await fetch(API_URL, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           'subject': subject,
           'topic': topic,
           'additionalReq': additionalReq
@@ -72,8 +74,8 @@ function StudyPage({ subject, topic, additionalReq, setSubject, setTopic, setAdd
       const response = await fetch(SAVE_CARD_URL, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ title, content })
       });
@@ -86,6 +88,53 @@ function StudyPage({ subject, topic, additionalReq, setSubject, setTopic, setAdd
       console.log('Card saved:', result);
     } catch (err) {
       console.error('Error saving card:', err);
+    }
+  };
+  const handleSaveToHistory = async () => {
+    if (!data || !data.sections || data.sections.length === 0) return;
+
+    const currentSection = data.sections[currentIndex];
+    const title = currentSection.type === "teaching" ? "Teaching" : "Question";
+    const content = currentSection.content || currentSection.question;
+
+    try {
+      const token = await getAccessTokenSilently();
+      const response = await fetch(SAVE_HISTORY_URL, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ title, content })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save card to history');
+      }
+
+      const result = await response.json();
+      console.log('Card saved to history:', result);
+    } catch (err) {
+      console.error('Error saving card to history:', err);
+    }
+  };
+
+
+  const handleIncreaseCardsStudied = async () => {
+    try {
+      const token = await getAccessTokenSilently();
+      const response = await fetch(INCREASE_CARDS_STUDIED_URL, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) throw new Error(`Failed to increase cards studied: ${await response.text()}`);
+      const result = await response.json();
+      console.log('Cards studied increased:', result);
+    } catch (err) {
+      console.error('Error increasing cards studied:', err);
     }
   };
 
@@ -130,28 +179,14 @@ function StudyPage({ subject, topic, additionalReq, setSubject, setTopic, setAdd
     const content = currentSection.content || currentSection.question;
   
     try {
-      const token = await getAccessTokenSilently();
-      const response = await fetch(SAVE_CARD_URL, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ title, content })
-      });
-  
-      if (!response.ok) {
-        throw new Error('Failed to save card');
-      }
-  
-      const result = await response.json();
-      console.log('Card saved to history:', result);
+      await handleSaveToHistory();
     } catch (err) {
       console.error('Error saving card to history:', err);
     }
   
     if (currentIndex < data.sections.length - 1) {
       setCurrentIndex(currentIndex + 1);
+      handleIncreaseCardsStudied();
     }
   };
 
