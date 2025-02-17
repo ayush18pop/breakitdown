@@ -56,7 +56,7 @@ function StudyPage({ subject, topic, additionalReq, setSubject, setTopic, setAdd
   }, []);
   
   const fetchData = async (subject, topic, additionalReq) => {
-    console.log('Fetching data with:', { subject, topic, additionalReq });
+    //console.log('Fetching data with:', { subject, topic, additionalReq });
     setLoading(true);
     setError(null);
     try {
@@ -79,7 +79,7 @@ function StudyPage({ subject, topic, additionalReq, setSubject, setTopic, setAdd
       setData(result);
     } catch (err) {
       setError(err.message);
-      console.error('Error:', err);
+      //console.error('Error:', err);
     } finally {
       setLoading(false);
     }
@@ -113,7 +113,7 @@ function StudyPage({ subject, topic, additionalReq, setSubject, setTopic, setAdd
       console.log('Card saved:', result);
       alert("Card saved successfully!");
     } catch (err) {
-      console.error('Error saving card:', err);
+      //console.error('Error saving card:', err);
     } finally {
       setLoading(false);
     }
@@ -162,7 +162,7 @@ function StudyPage({ subject, topic, additionalReq, setSubject, setTopic, setAdd
       const result = await response.json();
       console.log('Cards studied increased:', result);
     } catch (err) {
-      console.error('Error increasing cards studied:', err);
+     // console.error('Error increasing cards studied:', err);
     }
   };
 
@@ -281,10 +281,10 @@ function StudyPage({ subject, topic, additionalReq, setSubject, setTopic, setAdd
     setSelectedOption(option);
     if(option === currentSection.answer) {
       
-      console.log("Correct answer!");
+      //console.log("Correct answer!");
     } else {
       // Handle incorrect answer
-      console.log("Incorrect answer!");
+      //console.log("Incorrect answer!");
     }
   };
   const handleUpcomingTopicClick = (subject,topic,additionalReq) => {
