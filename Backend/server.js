@@ -23,28 +23,31 @@ const app = express();
 const port = process.env.PORT || 3000;
 // Middleware - Order is important!
 app.use(express.json()); // This needs to come before routes
-const allowedOrigins = [
-  "http://localhost:5173", // Local Development
-  "https://breakitdown-app.netlify.app", // Netlify Frontend
-];
 
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Include OPTIONS
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true, // Needed if using authentication (cookies, JWT, etc.)
-  })
-);
+app.use(cors());
 
-// Handle preflight requests explicitly
-app.options("*", cors());
+// const allowedOrigins = [
+//   "http://localhost:5173", // Local Development
+//   "https://breakitdown-app.netlify.app", // Netlify Frontend
+// ];
+
+// app.use(
+//   cors({
+//     origin: function (origin, callback) {
+//       if (!origin || allowedOrigins.includes(origin)) {
+//         callback(null, true);
+//       } else {
+//         callback(new Error("Not allowed by CORS"));
+//       }
+//     },
+//     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Include OPTIONS
+//     allowedHeaders: ["Content-Type", "Authorization"],
+//     credentials: true, // Needed if using authentication (cookies, JWT, etc.)
+//   })
+// );
+
+// // Handle preflight requests explicitly
+// app.options("*", cors());
 // MongoDB Connection
 mongoose
   .connect(process.env.MONGODB_URI)
