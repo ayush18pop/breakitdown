@@ -26,8 +26,9 @@ const port = 3000;
 app.use(express.json()); // This needs to come before routes
 app.use(
   cors({
-    origin: "https://breakitdown-app.netlify.app/", // Your frontend URL
-    credentials: true,
+    origin: "https://breakitdown-app.netlify.app", // Remove trailing slash
+    methods: "GET,POST,PUT,DELETE",
+    allowedHeaders: "Content-Type,Authorization",
   })
 );
 
