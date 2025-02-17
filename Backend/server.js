@@ -20,8 +20,7 @@ const {
 const { auth } = require("express-oauth2-jwt-bearer");
 
 const app = express();
-const port = 3000;
-
+const port = process.env.PORT || 3000;
 // Middleware - Order is important!
 app.use(express.json()); // This needs to come before routes
 app.use(
