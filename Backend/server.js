@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
-const fs = require('fs');
+const fs = require("fs");
 const User = require("./models/User"); // Import User model
 const datageneration = require("./datageneration"); // Import function
 const axios = require("axios");
@@ -15,6 +15,7 @@ const {
   addFlashcardToAnki,
   generateBackContent,
   model,
+  generateFrontContent,
 } = require("./ankiService");
 const { auth } = require("express-oauth2-jwt-bearer");
 
@@ -193,7 +194,22 @@ app.post("/api/generate-back", async (req, res) => {
   }
 });
 
-app.get('/api/user/saved-cards', checkJwt, async (req, res) => {
+app.post("/api/generate-front", async (req, res) => {
+  try {
+    const { fq } = req.body;
+    if (!fq)
+      return res.status(400).json({ error: "Front content is required" });
+
+    const front = await generateFrontContent(fq);
+
+    res.json({ front: front.trim() || "Explanation not available." });
+  } catch (error) {
+    console.error("❌ Error generating front content:", error);
+    res.status(500).json({ error: "Failed to generate front content" });
+  }
+});
+
+app.get("/api/user/saved-cards", checkJwt, async (req, res) => {
   try {
     const auth0Id = req.auth.payload.sub; // Get Auth0 ID from token
 
@@ -201,19 +217,18 @@ app.get('/api/user/saved-cards', checkJwt, async (req, res) => {
     let user = await User.findOne({ auth0Id });
 
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: "User not found" });
     }
 
     res.json({ cards: user.cards });
   } catch (error) {
-    console.error('Error fetching saved cards:', error);
+    console.error("Error fetching saved cards:", error);
     res.status(500).json({
       error: error.message,
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+      stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
     });
   }
 });
-
 
 app.post("/api/user/card", checkJwt, async (req, res) => {
   try {
@@ -236,7 +251,6 @@ app.post("/api/user/card", checkJwt, async (req, res) => {
     await user.save();
     console.log("Saved card for user:", user);
 
-   
     // Convert flashcard to CSV
     const fields = ["title", "content"];
     const opts = { fields };
@@ -285,6 +299,15 @@ app.post("/api/anki/add", checkJwt, async (req, res) => {
 
     // If back is missing, generate it first
     if (!back || back.trim() === "") {
+      console.log("🔄 Generating question for flashcard...");
+      const genResponse2 = await fetch(
+        "http://localhost:3000/api/generate-front",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ front }),
+        }
+      );
       console.log("🔄 Generating missing back content...");
       const genResponse = await fetch(
         "http://localhost:3000/api/generate-back",
@@ -295,9 +318,12 @@ app.post("/api/anki/add", checkJwt, async (req, res) => {
         }
       );
 
+      if (!genResponse2.ok) throw new Error("Failed to generate question");
       if (!genResponse.ok) throw new Error("Failed to generate back content");
       const genResult = await genResponse.json();
       back = genResult.back;
+      const genResult2 = await genResponse2.json();
+      front = genResult2.front;
     }
 
     // Save to Anki

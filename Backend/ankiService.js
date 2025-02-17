@@ -8,7 +8,7 @@ const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
 async function generateBackContent(front) {
   try {
-    const prompt = `Provide a concise but effective explanation for the following learning prompt in under 50 words:
+    const prompt = `Provide a detailed but effective explanation for the following learning prompt in under 50 words:
     
     "${front}"`;
 
@@ -21,10 +21,25 @@ async function generateBackContent(front) {
   }
 }
 
+async function generateFrontContent(front) {
+  try {
+    const prompt = `Provide an effective question for the following text suitable for flashcards:
+    
+    "${front}"`;
+
+    const result = await model.generateContent(prompt);
+    const responseText = await result.response.text();
+    return responseText.replace(/```json|```/g, "").trim();
+  } catch (error) {
+    console.error("❌ Error generating front content:", error);
+    return "Explanation not available.";
+  }
+}
+
 async function addFlashcardToAnki(front) {
   try {
     const back = await generateBackContent(front); // Generate the back dynamically
-
+    const fq = await generateFrontContent(front);
     const response = await axios.post("http://localhost:8765", {
       action: "addNote",
       version: 6,
@@ -32,7 +47,7 @@ async function addFlashcardToAnki(front) {
         note: {
           deckName: "Default",
           modelName: "Basic",
-          fields: { Front: front, Back: back },
+          fields: { Front: fq, Back: back },
           options: { allowDuplicate: false },
           tags: ["flashcards"],
         },
@@ -42,9 +57,17 @@ async function addFlashcardToAnki(front) {
     console.log("✅ Flashcard added to Anki:", response.data);
     return response.data;
   } catch (error) {
-    console.error("❌ Anki Error:", error.response ? error.response.data : error.message);
+    console.error(
+      "❌ Anki Error:",
+      error.response ? error.response.data : error.message
+    );
     return null;
   }
 }
 
-module.exports = { addFlashcardToAnki, generateBackContent, model };
+module.exports = {
+  addFlashcardToAnki,
+  generateBackContent,
+  model,
+  generateFrontContent,
+};

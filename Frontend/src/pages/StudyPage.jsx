@@ -31,6 +31,7 @@ function StudyPage({ subject, topic, additionalReq, setSubject, setTopic, setAdd
   const [selectedOption, setSelectedOption] = useState(null);
   const navigate = useNavigate();
   const { isAuthenticated, getAccessTokenSilently } = useAuth0();
+  const [showAnkiInstructions, setShowAnkiInstructions] = useState(false);
 
 
   useEffect(() => {
@@ -91,6 +92,8 @@ function StudyPage({ subject, topic, additionalReq, setSubject, setTopic, setAdd
     const title = currentSection.type === "teaching" ? "Teaching" : "Question";
     const content = currentSection.content || currentSection.question;
 
+    setLoading(true);
+
     try {
       const token = await getAccessTokenSilently();
       const response = await fetch(SAVE_CARD_URL, {
@@ -108,8 +111,11 @@ function StudyPage({ subject, topic, additionalReq, setSubject, setTopic, setAdd
 
       const result = await response.json();
       console.log('Card saved:', result);
+      alert("Card saved successfully!");
     } catch (err) {
       console.error('Error saving card:', err);
+    } finally {
+      setLoading(false);
     }
   };
   const handleSaveToHistory = async () => {
@@ -225,6 +231,8 @@ function StudyPage({ subject, topic, additionalReq, setSubject, setTopic, setAdd
     const front = currentSection.content || currentSection.question;
     let back = currentSection.answer || "";
   
+    setLoading(true);
+  
     try {
       const token = await getAccessTokenSilently();
   
@@ -260,8 +268,11 @@ function StudyPage({ subject, topic, additionalReq, setSubject, setTopic, setAdd
   
       const result = await response.json();
       console.log("✅ Added to Anki:", result);
+      alert("Card added in Anki, please check a deck named 'Default'.");
     } catch (err) {
       console.error("❌ Error adding to Anki:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -284,13 +295,23 @@ function StudyPage({ subject, topic, additionalReq, setSubject, setTopic, setAdd
     <div className="flex justify-center items-center p-0">
       <Card className="w-full max-w-3xl h-auto shadow-lg border rounded-xl">
         {/* Card Header */}
-        <CardHeader className="py-5  border-b">
-          <CardTitle className="text-2xl font-semibold">
-            {currentSection.type === "teaching" ? "Teaching" : "Question"}
-          </CardTitle>
-          <CardDescription className="text-gray-500 text-lg">
-            {currentSection.type === "question" ? "Quiz Time!" : "Learn Something New"}
-          </CardDescription>
+        <CardHeader className="py-5 border-b flex justify-between items-center">
+          <div>
+            <CardTitle className="text-2xl font-semibold">
+              {currentSection.type === "teaching" ? "Teaching" : "Question"}
+            </CardTitle>
+            <CardDescription className="text-gray-500 text-lg">
+              {currentSection.type === "question" ? "Quiz Time!" : "Learn Something New"}
+            </CardDescription>
+          </div>
+          {/* New Button for Anki Connection Instructions */}
+          <Button 
+            variant="outline" 
+            className="mt-2" 
+            onClick={() => setShowAnkiInstructions(prev => !prev)}
+          >
+            How to Connect Anki
+          </Button>
         </CardHeader>
 
         {/* Card Content */}
@@ -376,6 +397,32 @@ function StudyPage({ subject, topic, additionalReq, setSubject, setTopic, setAdd
           </div>
         </CardFooter>
       </Card>
+
+      {/* Popup for Anki Instructions */}
+      {showAnkiInstructions && (
+        <Card className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 shadow-lg">
+          <CardHeader>
+            <CardTitle>How to Connect Anki</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p>To connect Anki manually:</p>
+            <ol className="list-decimal pl-5">
+              <li>Go to Tools -> Add-ons</li>
+              <li>Click on 'Get Add-ons'</li>
+              <li>Add code (2055492159) and press OK</li>
+              <li>Restart Anki</li>
+            </ol>
+          </CardContent>
+          <CardFooter className="flex justify-center">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowAnkiInstructions(false)}
+            >
+              OK
+            </Button>
+          </CardFooter>
+        </Card>
+      )}
     </div>
   );
 }
