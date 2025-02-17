@@ -304,14 +304,17 @@ function StudyPage({ subject, topic, additionalReq, setSubject, setTopic, setAdd
               {currentSection.type === "question" ? "Quiz Time!" : "Learn Something New"}
             </CardDescription>
           </div>
+
+          {/* BUTTON HIDDEN CUZ FEATURE COMING SOON! */}
+
           {/* New Button for Anki Connection Instructions */}
-          <Button 
+          {/* <Button 
             variant="outline" 
             className="mt-2" 
             onClick={() => setShowAnkiInstructions(prev => !prev)}
           >
             How to Connect Anki
-          </Button>
+          </Button> */}
         </CardHeader>
 
         {/* Card Content */}
