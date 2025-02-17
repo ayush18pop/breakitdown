@@ -65,19 +65,60 @@ const Charts = () => {
         label: 'Cards Studied',
         data: dataPoints,
         borderColor: 'rgba(75, 192, 192, 1)',
-        fill: false,
+        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+        fill: true,
+        tension: 0.4, // Smooth curves
+        pointBackgroundColor: 'rgba(75, 192, 192, 1)',
+        pointBorderColor: '#fff',
+        pointHoverBackgroundColor: '#fff',
+        pointHoverBorderColor: 'rgba(75, 192, 192, 1)',
       },
     ],
   };
 
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: true,
+        position: 'top',
+      },
+      tooltip: {
+        mode: 'index',
+        intersect: false,
+      },
+    },
+    hover: {
+      mode: 'nearest',
+      intersect: true,
+    },
+    
+    scales: {
+      x: {
+        display: true,
+        title: {
+          display: true,
+          text: 'Date',
+        },
+      },
+      y: {
+        display: true,
+        title: {
+          display: true,
+          text: 'Number of Cards Studied',
+        },
+        beginAtZero: true,
+      },
+    },
+  };
+
   return (
-    <div className="w-[600px] h-[400px]">
-      <h3>Cards Studied Over Time</h3>
-      <Line data={chartData} options={{
-        responsive: true,
-        maintainAspectRatio: false,
-        aspectRatio: 16 / 9,
-      }} />
+    <div className="flex justify-center items-center w-full h-full p-4">
+      <div className="w-full max-w-4xl h-96">
+        <h3 className="text-center mb-4">Cards Studied Over Time</h3>
+        <Line data={chartData} options={chartOptions} />
+      </div>
     </div>
   );
 };

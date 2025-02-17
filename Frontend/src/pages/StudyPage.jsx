@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Bookmark } from "lucide-react";
+import { Bookmark, ChevronLeft, ChevronRight, PlusCircle } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -259,98 +259,101 @@ function StudyPage({ subject, topic, additionalReq, setSubject, setTopic, setAdd
   };
 
   return (
-    <div className="relative flex-1 flex justify-center items-center">
-      {loading ? (
-        <div className="flex items-center justify-center min-h-screen w-full">
-          <l-grid
-            size="60"
-            speed="1.5" 
-            color="black"
-          ></l-grid>
-        </div>
-      ) : (
-        <Card className="my-40 w-[400px] min-h-[300px] max-h-[600px] text-center bg-white/20 backdrop-blur-sm border border-white/30 shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-black/90 font-newstar text-4xl">
-              {currentSection?.type === "teaching" ? "Teaching" : currentSection?.type === "question" ? "Question" : "Upcoming Content"}
-            </CardTitle>
-            <CardDescription className="text-black/70 font-newstar text-2xl">
-              {currentSection?.type === "question" ? "Quiz Time!" : currentSection?.type === "teaching" ? "Learn Something New" : "Stay Tuned!"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-        
-            {currentSection?.type === "teaching" && <p className="text-black/80 font-serif">{currentSection.content}</p>}
+    <div className="flex justify-center items-center p-0">
+      <Card className="w-full max-w-3xl h-auto shadow-lg border rounded-xl">
+        {/* Card Header */}
+        <CardHeader className="py-5  border-b">
+          <CardTitle className="text-2xl font-semibold">
+            {currentSection.type === "teaching" ? "Teaching" : "Question"}
+          </CardTitle>
+          <CardDescription className="text-gray-500 text-lg">
+            {currentSection.type === "question" ? "Quiz Time!" : "Learn Something New"}
+          </CardDescription>
+        </CardHeader>
 
-            {currentSection?.type === "question" && (
-              <div>
-                <p className="font-semibold text-black/90 font-serif">{currentSection.question}</p>
-                <ul className="mt-2">
-                  {currentSection.options.map((option, index) => (
-                    <li 
-                      key={index} 
-                      className={`p-2 border rounded-md cursor-pointer mb-2 backdrop-blur-sm font-serif
-                        ${!selectedOption 
-                          ? 'bg-gray-200/30 hover:bg-gray-300/30'
-                          : selectedOption === option
-                            ? option === currentSection.answer
-                              ? 'bg-green-200/30 hover:bg-green-300/30'
-                              : 'bg-red-200/30 hover:bg-red-300/30'
-                            : 'bg-gray-200/30 hover:bg-gray-300/30'
-                        }`}
-                      onClick={() => handleOptionClick(option)}
-                    >
-                      {option}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+        {/* Card Content */}
+        <CardContent className="px-6 py-24 text-3xl">
+          {currentSection.type === "teaching" && (
+            <p className="text-gray-800 ">{currentSection.content}</p>
+          )}
 
-            {currentSection?.type === "upcoming_content" && (
-              <div>
-                <p className="font-semibold">Upcoming Content</p>
-                <ul className="mt-2">
-                  {currentSection.upcoming_topics.map((topic, index) => (
-                    <Button 
-                      variant='ghost' 
-                      key={index} 
-                      className="p-2 border rounded-md mb-2" 
-                      onClick={() =>{ setTopic(topic); setCurrentIndex(0)}}
-                    >
-                      {topic}
-                    </Button>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </CardContent>
-          <CardFooter>
-            <div className="flex justify-between w-full px-6 py-2">
-              <Button 
-                variant="outline" 
-                onClick={handlePrevious} 
-                disabled={currentIndex === 0}
-              >
-                Previous
-              </Button>
-               <Button variant="outline" onClick={handleSaveCard}>
-                <Bookmark className="mr-2" />
-                Save
-              </Button>
-              <Button variant="outline" onClick={handleAddToAnki}>
-              🃏 Add to Anki
-               </Button>
-              <Button 
-                onClick={handleNext} 
-                disabled={currentIndex === data.sections.length - 1}
-              >
-                Next
-              </Button>
+          {currentSection.type === "question" && (
+            <div>
+              <p className="font-semibold mb-4">
+                {currentSection.question}
+              </p>
+              <ul className="space-y-3">
+                {currentSection.options.map((option, index) => (
+                  <li 
+                    key={index} 
+                    className={`p-1 border rounded-lg cursor-pointer transition-all duration-200 
+                      ${selectedOption === option 
+                        ? option === currentSection.answer 
+                          ? 'bg-green-100 border-green-500' 
+                          : 'bg-red-100 border-red-500' 
+                        : 'hover:bg-gray-100'}`}
+                    onClick={() => setSelectedOption(option)}
+                  >
+                    <span className="font-sans text-lg">{option}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
-          </CardFooter>
-        </Card>
-      )}
+          )}
+
+          {currentSection.type === "upcoming_content" && (
+            <div>
+              <p className="font-semibold text-4xl mb-4">Upcoming Topics</p>
+              <ul className="space-y-3">
+                {currentSection.upcoming_topics.map((topic, index) => (
+                  <Button 
+                    variant='ghost' 
+                    key={index} 
+                    className="w-full text-left p-3 border rounded-lg hover:bg-gray-100"
+                    onClick={() => setTopic(topic)}
+                  >
+                    {topic}
+                  </Button>
+                ))}
+              </ul>
+            </div>
+          )}
+        </CardContent>
+
+        {/* Card Footer - Centered Buttons */}
+        <CardFooter className="p-6 border-t">
+          <div className="flex justify-center w-full space-x-3">
+            <Button 
+              variant="outline" 
+              onClick={handlePrevious} 
+              disabled={currentIndex === 0}
+              className="flex items-center space-x-2 text-2xl"
+            >
+              <ChevronLeft className="w-5 h-5" />
+              <span>Previous</span>
+            </Button>
+
+            <Button variant="outline" className="flex items-center space-x-2 text-lg" onClick={handleSaveCard}>
+              <Bookmark className="w-5 h-5" />
+              <span>Save</span>
+            </Button>
+
+            <Button variant="outline" className="flex items-center space-x-2 text-lg" onClick={handleAddToAnki}>
+              <PlusCircle className="w-5 h-5" />
+              <span>Add to Anki</span>
+            </Button>
+
+            <Button 
+              onClick={handleNext} 
+              disabled={currentIndex === data.sections.length - 1}
+              className="flex items-center space-x-2 text-lg"
+            >
+              <span>Next</span>
+              <ChevronRight className="w-5 h-5" />
+            </Button>
+          </div>
+        </CardFooter>
+      </Card>
     </div>
   );
 }

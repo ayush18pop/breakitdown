@@ -57,7 +57,7 @@ const Consistency = () => {
       weekRow.push(
         <Tooltip key={`${dateString}-${row}`} content={`${dateString}: ${studiedCount} card(s) studied`}>
           <div
-            className={`w-5 h-5 border ${studiedCount > 0 ? 'bg-green-500' : 'bg-gray-300'} m-1`} // Tailwind classes
+            className={`w-4 h-4  border ${studiedCount > 0 ? 'bg-green-500' : 'bg-gray-300'} m-0.5 rounded-sm`} // Adjusted Tailwind classes
           ></div>
         </Tooltip>
       );
@@ -70,8 +70,8 @@ const Consistency = () => {
   }
 
   return (
-    <div className="flex flex-col items-center">
-      <h3 className="text-lg font-semibold">Activity</h3>
+    <div className="flex flex-col items-center p-4">
+      <h3 className="text-lg font-semibold mb-4">Activity</h3>
       <div className="flex flex-col">
         {grid}
       </div>
@@ -80,4 +80,3 @@ const Consistency = () => {
 };
 
 export default Consistency;
-  

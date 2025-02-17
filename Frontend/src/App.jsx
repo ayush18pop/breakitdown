@@ -108,10 +108,16 @@ function AppContent() {
                 </Link>
               </li>
               <li>
+                <Link to="/study" className="text-black/80 hover:text-black transition-colors">
+                  Study
+                </Link>
+              </li>
+              <li>
                 <Link to="/admin" className="text-black/80 hover:text-black transition-colors">
                   Dashboard
                 </Link>
               </li>
+              
 
               {isAuthenticated ? (
                 <li>
