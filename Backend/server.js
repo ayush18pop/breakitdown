@@ -26,7 +26,7 @@ const port = 3000;
 app.use(express.json()); // This needs to come before routes
 app.use(
   cors({
-    origin: "http://localhost:5173", // Your frontend URL
+    origin: "https://breakitdown-app.netlify.app/", // Your frontend URL
     credentials: true,
   })
 );
@@ -303,7 +303,7 @@ app.post("/api/anki/add", checkJwt, async (req, res) => {
     if (!back || back.trim() === "") {
       console.log("🔄 Generating question for flashcard...");
       const genResponse2 = await fetch(
-        "http://localhost:3000/api/generate-front",
+        "https://breakitdown-psi.vercel.app/api/generate-front",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -312,7 +312,7 @@ app.post("/api/anki/add", checkJwt, async (req, res) => {
       );
       console.log("🔄 Generating missing back content...");
       const genResponse = await fetch(
-        "http://localhost:3000/api/generate-back",
+        "https://breakitdown-psi.vercel.app/api/generate-back",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
