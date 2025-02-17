@@ -12,7 +12,7 @@ const Consistency = () => {
     const fetchCardsStudied = async () => {
       try {
         const token = await getAccessTokenSilently();
-        const response = await fetch('http://localhost:3000/api/cardsStudied', {
+        const response = await fetch('https://breakitdown-psi.vercel.app/api/cardsStudied', {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,

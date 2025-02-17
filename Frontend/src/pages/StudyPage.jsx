@@ -17,10 +17,10 @@ jellyTriangle.register()
 
 // Default values shown
 
-const API_URL = "http://localhost:3000/api/data";
-const SAVE_CARD_URL = "http://localhost:3000/api/user/card";
-const INCREASE_CARDS_STUDIED_URL = "http://localhost:3000/api/increase-cards-studied";
-const SAVE_HISTORY_URL = "http://localhost:3000/api/user/history-save";
+const API_URL = "https://breakitdown-psi.vercel.app/api/data";
+const SAVE_CARD_URL = "https://breakitdown-psi.vercel.app/api/user/card";
+const INCREASE_CARDS_STUDIED_URL = "https://breakitdown-psi.vercel.app/api/increase-cards-studied";
+const SAVE_HISTORY_URL = "https://breakitdown-psi.vercel.app/api/user/history-save";
 
 function StudyPage({ subject, topic, additionalReq, setSubject, setTopic, setAdditionalReq }) {
   const [data, setData] = useState(null);
@@ -178,7 +178,7 @@ function StudyPage({ subject, topic, additionalReq, setSubject, setTopic, setAdd
     const fetchHistory = async () => {
       try {
         const token = await getAccessTokenSilently();
-        const response = await fetch('http://localhost:3000/api/user/history', {
+        const response = await fetch('https://breakitdown-psi.vercel.app/api/user/history', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -239,7 +239,7 @@ function StudyPage({ subject, topic, additionalReq, setSubject, setTopic, setAdd
       // 🔹 Auto-generate back content if missing
       if (!back.trim()) {
         console.log("🔄 Fetching AI-generated back content...");
-        const genResponse = await fetch("http://localhost:3000/api/generate-back", {
+        const genResponse = await fetch("https://breakitdown-psi.vercel.app/api/generate-back", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -253,7 +253,7 @@ function StudyPage({ subject, topic, additionalReq, setSubject, setTopic, setAdd
       }
   
       // 🔹 Send to Anki
-      const response = await fetch("http://localhost:3000/api/anki/add", {
+      const response = await fetch("https://breakitdown-psi.vercel.app/api/anki/add", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

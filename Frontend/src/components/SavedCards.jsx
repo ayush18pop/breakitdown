@@ -11,7 +11,7 @@ const SavedCards = () => {
     const fetchSavedCards = async () => {
       try {
         const token = await getAccessTokenSilently();
-        const response = await fetch('http://localhost:3000/api/user/saved-cards', {
+        const response = await fetch('https://breakitdown-psi.vercel.app/api/user/saved-cards', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
