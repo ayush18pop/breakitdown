@@ -345,7 +345,7 @@ app.post("/api/anki/add", checkJwt, async (req, res) => {
     }
 
     // Save to Anki
-    const response = await addFlashcardToAnki(front, back);
+    const response = await addFlashcardToAnki(front);
     if (response?.result) {
       res.json({
         success: true,
