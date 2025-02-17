@@ -24,7 +24,7 @@ const port = process.env.PORT || 3000;
 // Middleware - Order is important!
 app.use(express.json()); // This needs to come before routes
 
-app.use(cors({ origin: "https://breakitdown-app.netlify.app" }));
+app.use(cors());
 // const allowedOrigins = [
 //   "http://localhost:5173", // Local Development
 //   "https://breakitdown-app.netlify.app", // Netlify Frontend
