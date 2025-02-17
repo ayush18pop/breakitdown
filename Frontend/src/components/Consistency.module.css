@@ -1,4 +1,5 @@
 .activity-grid {
+ 
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -12,3 +13,18 @@
 .grid-cell.active {
   background-color: #4caf50; /* Green for active days */
 }
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .grid-cell {
+    display: inline-block;
+    transition: background-color 0.3s;
+  }
+
+  .grid-cell.active {
+    background-color: #4caf50; /* Green for active days */
+  }
+ 

@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+ 
+import '../dashboardcss.css';
+ 
 import Profile from '../components/Profile';
 import Charts from '../components/Charts';
 import Consistency from '../components/Consistency';

@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
+ 
 import Tooltip from './ToolTip'; // Import the Tooltip component
+
+import Tooltip from './Tooltip'; // Import the Tooltip component
+ 
 
 const Consistency = () => {
   const { getAccessTokenSilently } = useAuth0();

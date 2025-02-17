@@ -15,6 +15,17 @@ const cardSchema = new mongoose.Schema({
   },
 });
 
+const cardStudiedSchema = new mongoose.Schema({
+  dateStudied: {
+    type: Date,
+    required: true,
+  },
+  numberOfCards: {
+    type: Number,
+    required: true,
+  },
+});
+
 const userSchema = new mongoose.Schema({
   auth0Id: {
     type: String,
@@ -34,6 +45,7 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+
   cardsStudied: {
     type: Map,
     of: {
@@ -58,6 +70,7 @@ const userSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model("User", userSchema);
+
 
 
 

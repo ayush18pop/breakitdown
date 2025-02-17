@@ -16,6 +16,9 @@ const {
   generateBackContent,
   model,
 } = require("./ankiService");
+
+const User = require("./models/User"); // Import User model
+const datageneration = require("./datageneration"); // Import function properly
 const { auth } = require("express-oauth2-jwt-bearer");
 
 const app = express();
@@ -109,6 +112,7 @@ app.post("/api/user", checkJwt, async (req, res) => {
     });
   }
 });
+
 
 app.get("/api/userDetails", checkJwt, async (req, res) => {
   try {
