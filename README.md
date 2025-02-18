@@ -68,7 +68,7 @@ BreakItDown is a personalized learning platform that breaks down complex topics 
 
     # Start the frontend server
     cd ../Frontend
-    npm start
+    npm run dev
     ```
 
 ## Usage
