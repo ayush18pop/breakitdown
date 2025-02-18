@@ -23,6 +23,7 @@
     "json2csv": "^6.0.0-alpha.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.10.1",
+    "openai": "^4.85.1",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0"
   }
