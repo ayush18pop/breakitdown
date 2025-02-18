@@ -44,7 +44,7 @@ BreakItDown is a personalized learning platform that breaks down complex topics 
 
 3. **Set up environment variables**:
 
-    Create a `.env` file in both the `Backend` directory and add the necessary environment variables.
+    Create a `.env` file in the `Backend` directory and add the necessary environment variables.
 
     **Backend/.env**:
    ```env
