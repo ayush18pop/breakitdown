@@ -407,7 +407,7 @@ function StudyPage({ subject, topic, additionalReq, setSubject, setTopic, setAdd
           <CardContent>
             <p>To connect Anki manually:</p>
             <ol className="list-decimal pl-5">
-              <li>Go to Tools -> Add-ons</li>
+              <li>Go to Tools and then  Add-ons</li>
               <li>Click on 'Get Add-ons'</li>
               <li>Add code (2055492159) and press OK</li>
               <li>Restart Anki</li>

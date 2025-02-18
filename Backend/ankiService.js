@@ -8,7 +8,7 @@ const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
 async function generateBackContent(front) {
   try {
-    const prompt = `Provide a detailed but effective explanation for the following learning prompt in under 50 words:
+    const prompt = `Provide a detailed answer but effective explanation for the following learning prompt in under 50 words:
     
     "${front}"`;
 
@@ -23,7 +23,7 @@ async function generateBackContent(front) {
 
 async function generateFrontContent(front) {
   try {
-    const prompt = `Provide an effective question for the following text suitable for flashcards:
+    const prompt = `Provide only 1 effective question for the following text suitable for flashcards:
     
     "${front}"`;
 
