@@ -143,6 +143,51 @@ app.get("/api/userDetails", checkJwt, async (req, res) => {
     res.status(500).json({ error: "Failed to fetch user details" });
   }
 });
+app.post('/api/generate-question-answer', checkJwt, async (req, res) => {
+  try {
+    const { content } = req.body;
+
+    const question = await generateFrontContent(content);
+    const answer = await generateBackContent(content);
+
+    res.json({ question, answer });
+  } catch (error) {
+    console.error('Error generating question and answer:', error);
+    res.status(500).json({
+      error: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+    });
+  }
+});
+app.get("/api/user/flashcard/:id", checkJwt, async (req, res) => {
+  try {
+    const auth0Id = req.auth.payload.sub; // Get Auth0 ID from token
+    const { id } = req.params;
+
+    // Find the user
+    let user = await User.findOne({ auth0Id });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Find the flashcard
+    const flashcard = user.cards.id(id);
+
+    if (!flashcard) {
+      return res.status(404).json({ error: "Flashcard not found" });
+    }
+
+    res.json({ flashcard });
+  } catch (error) {
+    console.error("Error fetching flashcard:", error);
+    res.status(500).json({
+      error: error.message,
+      stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
+    });
+  }
+});
+
 app.get("/api/cardsStudied", checkJwt, async (req, res) => {
   try {
     const auth0Id = req.auth.payload.sub;

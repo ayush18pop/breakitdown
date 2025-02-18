@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
-
+import { useNavigate } from 'react-router-dom';
 const SavedCards = () => {
   const { getAccessTokenSilently } = useAuth0();
   const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const navigate = useNavigate(); 
   useEffect(() => {
     const fetchSavedCards = async () => {
       try {
@@ -40,7 +40,9 @@ const SavedCards = () => {
   return (
     <div className="saved-cards-container">
       {cards.map((card, index) => (
-        <div key={index} className="flashcard border p-4 rounded-lg shadow-md mb-4">
+        <div key={index} className="flashcard border p-4 rounded-lg shadow-md mb-4"
+        onClick={() => navigate(`/flashcard/${card._id}`)}
+        >  
           <h3 className="font-bold text-lg">{card.title}</h3>
           <p>{card.content}</p>
         </div>

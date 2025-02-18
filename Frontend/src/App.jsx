@@ -3,6 +3,7 @@ import { Auth0Provider, useAuth0 } from '@auth0/auth0-react';
 import { authConfig } from './auth0-config';
 import StudyPage from "./pages/StudyPage";
 import AdminDashboard from "./pages/AdminDashboard";
+import FlashcardDetails from "./components/FlashcardDetails";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import axios from 'axios';
@@ -172,6 +173,16 @@ function AppContent() {
             element={
               isAuthenticated ? (
                 <AdminDashboard />
+              ) : (
+                <Navigate to="/" replace />
+              )
+            } 
+          />
+           <Route 
+            path="/flashcard/:id" 
+            element={
+              isAuthenticated ? (
+                <FlashcardDetails />
               ) : (
                 <Navigate to="/" replace />
               )
