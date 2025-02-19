@@ -120,11 +120,16 @@ function AppContent() {
       setChatMessages([...chatMessages, newMessage, botMessage]);
     } catch (error) {
       console.error('Error during chatbot interaction', error);
-      const errorMessage = { sender: "bot", text: "Sorry, something went wrong. Please try again later." };
+      let errorMessage;
+      if (error.response && error.response.status === 401) {
+        errorMessage = { sender: "bot", text: "Please log in to access the chatbot." };
+      } else {
+        errorMessage = { sender: "bot", text: "Sorry, something went wrong. Please try again later,Please log in to access the chatbot." };
+      }
       setChatMessages([...chatMessages, newMessage, errorMessage]);
-    }
-
-    setChatInput("");
+      }
+  
+      setChatInput("");
   };
   const toggleChat = () => {
     setIsChatOpen(!isChatOpen);
@@ -186,6 +191,8 @@ function AppContent() {
               additionalReq={additionalReq} 
               setAdditionalReq={setAdditionalReq} 
               onStartLearning={handleStartLearning}
+              isAuthenticated={isAuthenticated}
+              loginWithRedirect={loginWithRedirect}
             />
           } />
           <Route 
@@ -227,79 +234,87 @@ function AppContent() {
           />
         </Routes>
       </main>
-      <div className="fixed bottom-4 right-4">
-        <button
-          className="bg-blue-500 text-white p-3 rounded-full shadow-lg"
-          onClick={toggleChat}
-        >
-          <FontAwesomeIcon icon={isChatOpen ? faTimes : faComments} />
-        </button>
-        {isChatOpen && (
-          <div className="w-80 bg-white border border-gray-300 rounded-lg shadow-lg mt-2">
-            <div className="p-4">
-              <div className="flex justify-between items-center">
-                <h2 className="text-lg font-semibold">Chat with our AI</h2>
-                <button
-                  className="text-red-500"
-                  onClick={clearChatMessages}
-                >
-                  <FontAwesomeIcon icon={faTrash} />
-                </button>
+      {isAuthenticated && (
+        <div className="fixed bottom-4 right-4">
+          <button
+            className="bg-blue-500 text-white p-3 rounded-full shadow-lg"
+            onClick={toggleChat}
+          >
+            <FontAwesomeIcon icon={isChatOpen ? faTimes : faComments} />
+          </button>
+          {isChatOpen && (
+            <div className="w-80 bg-white border border-gray-300 rounded-lg shadow-lg mt-2">
+              <div className="p-4">
+                <div className="flex justify-between items-center">
+                  <h2 className="text-lg font-semibold">Chat with our AI</h2>
+                  <button
+                    className="text-red-500"
+                    onClick={clearChatMessages}
+                  >
+                    <FontAwesomeIcon icon={faTrash} />
+                  </button>
+                </div>
+                <div className="h-64 overflow-y-auto">
+                  {chatMessages.map((msg, index) => (
+                    <div key={index} className={`my-2 p-2 rounded ${msg.sender === "user" ? "bg-blue-100 text-right" : "bg-gray-100 text-left"}`}>
+                      {msg.text}
+                    </div>
+                  ))}
+                </div>
+                <form onSubmit={handleChatSubmit} className="mt-4">
+                  <input
+                    type="text"
+                    value={chatInput}
+                    onChange={(e) => setChatInput(e.target.value)}
+                    className="w-full p-2 border rounded"
+                    placeholder="Type your message..."
+                  />
+                  <button type="submit" className="w-full mt-2 p-2 bg-blue-500 text-white rounded">Send</button>
+                </form>
               </div>
-              <div className="h-64 overflow-y-auto">
-                {chatMessages.map((msg, index) => (
-                  <div key={index} className={`my-2 p-2 rounded ${msg.sender === "user" ? "bg-blue-100 text-right" : "bg-gray-100 text-left"}`}>
-                    {msg.text}
-                  </div>
-                ))}
-              </div>
-              <form onSubmit={handleChatSubmit} className="mt-4">
-                <input
-                  type="text"
-                  value={chatInput}
-                  onChange={(e) => setChatInput(e.target.value)}
-                  className="w-full p-2 border rounded"
-                  placeholder="Type your message..."
-                />
-                <button type="submit" className="w-full mt-2 p-2 bg-blue-500 text-white rounded">Send</button>
-              </form>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
 
-function Home({ subject, setSubject, topic, setTopic, additionalReq, setAdditionalReq, onStartLearning }) {
+function Home({ subject, setSubject, topic, setTopic, additionalReq, setAdditionalReq, onStartLearning , isAuthenticated, loginWithRedirect}) {
   return (
     <div className="flex flex-col items-center justify-center min-h-[80vh] text-center selection:bg-yellow-300">
       <h1 className="text-5xl mb-6 font-newstar">Welcome to <span className="bg-yellow-300 ">BreakItDown</span></h1>
       <p className="text-xl text-black/80 mb-8 max-w-2xl font-newstar">
         Your personalized learning platform that breaks down complex topics into simple, digestible pieces.
       </p>
-      <input 
-        type="text" 
-        placeholder="Enter Subject" 
-        value={subject} 
-        onChange={(e) => setSubject(e.target.value)} 
-        className="mb-4 p-2 border rounded"
-      />
-      <input 
-        type="text" 
-        placeholder="Enter Topic" 
-        value={topic} 
-        onChange={(e) => setTopic(e.target.value)} 
-        className="mb-4 p-2 border rounded"
-      />
-      <input 
-        type="text" 
-        placeholder="Anything Else?" 
-        value={additionalReq} 
-        onChange={(e) => setAdditionalReq(e.target.value)} 
-        className="mb-4 p-2 border rounded"
-      />
-      <Button onClick={onStartLearning}>Start Learning</Button>
+      {isAuthenticated ? (
+        <>
+          <input 
+            type="text" 
+            placeholder="Enter Subject" 
+            value={subject} 
+            onChange={(e) => setSubject(e.target.value)} 
+            className="mb-4 p-2 border rounded"
+          />
+          <input 
+            type="text" 
+            placeholder="Enter Topic" 
+            value={topic} 
+            onChange={(e) => setTopic(e.target.value)} 
+            className="mb-4 p-2 border rounded"
+          />
+          <input 
+            type="text" 
+            placeholder="Anything Else?" 
+            value={additionalReq} 
+            onChange={(e) => setAdditionalReq(e.target.value)} 
+            className="mb-4 p-2 border rounded"
+          />
+          <Button onClick={onStartLearning}>Start Learning</Button>
+        </>
+      ) : (
+        <Button onClick={loginWithRedirect}>Login</Button>
+      )}
     </div>
   );
 }
