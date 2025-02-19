@@ -10,6 +10,8 @@ const datageneration = require("./datageneration"); // Import function
 const axios = require("axios");
 const { Parser } = require("json2csv");
 const AnkiExport = require("anki-apkg-export").default;
+const generateResponse = require("./chatBot");
+
 // properly
 const {
   addFlashcardToAnki,
@@ -126,6 +128,21 @@ app.post("/api/user", checkJwt, async (req, res) => {
       error: error.message,
       stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
     });
+  }
+});
+app.post("/api/chatbot", checkJwt, async (req, res) => {
+  try {
+    const { message } = req.body;
+
+    if (!message) {
+      return res.status(400).json({ error: "Message is required" });
+    }
+
+    const chatbotResponse = await generateResponse(message);
+    res.json({ response: chatbotResponse });
+  } catch (error) {
+    console.error("Error generating chatbot response:", error);
+    res.status(500).json({ error: "Failed to generate chatbot response" });
   }
 });
 

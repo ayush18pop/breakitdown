@@ -9,6 +9,8 @@ import { useState, useEffect } from "react";
 import axios from 'axios';
 import './App.css'; // Add your CSS for modal styling
 import { useNavigate } from 'react-router-dom'; // Make sure this is imported
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faComments, faTimes, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 function App() {
   return (
@@ -28,6 +30,9 @@ function AppContent() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLogin, setIsLogin] = useState(true); // Toggle between login and signup
+  const [chatInput, setChatInput] = useState("");
+  const [chatMessages, setChatMessages] = useState([]);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const navigate = useNavigate(); // Initialize useNavigate
 
   useEffect(() => {
@@ -96,6 +101,38 @@ function AppContent() {
       alert(error.response?.data?.error || 'An error occurred');
     }
   };
+  
+  const handleChatSubmit = async (e) => {
+    e.preventDefault();
+    if (!chatInput.trim()) return;
+
+    const newMessage = { sender: "user", text: chatInput };
+    setChatMessages([...chatMessages, newMessage]);
+
+    try {
+      const token = await getAccessTokenSilently();
+      const response = await axios.post('https://breakitdown-ruby.vercel.app/api/chatbot', { message: chatInput }, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      const botMessage = { sender: "bot", text: response.data.response };
+      setChatMessages([...chatMessages, newMessage, botMessage]);
+    } catch (error) {
+      console.error('Error during chatbot interaction', error);
+      const errorMessage = { sender: "bot", text: "Sorry, something went wrong. Please try again later." };
+      setChatMessages([...chatMessages, newMessage, errorMessage]);
+    }
+
+    setChatInput("");
+  };
+  const toggleChat = () => {
+    setIsChatOpen(!isChatOpen);
+  };
+
+  const clearChatMessages = () => {
+    setChatMessages([]);
+  };
 
   return (
     <div className="min-h-screen font-newstar">
@@ -123,14 +160,14 @@ function AppContent() {
               {isAuthenticated ? (
                 <li>
                 <button 
-  onClick={() => {
-    localStorage.removeItem('studyPageState'); // Clear the study page state from local storage
-    logout({ returnTo: window.location.origin });
-  }}
-  className="text-black/80 hover:text-black transition-colors"
->
-  Logout
-</button>
+        onClick={() => {
+         localStorage.removeItem('studyPageState'); // Clear the study page state from local storage
+         logout({ returnTo: 'https://breakitdown-app.netlify.app/' });
+          }}
+            className="text-black/80 hover:text-black transition-colors"
+             >
+             Logout
+            </button>
                 </li>
               ) : null}
             </ul>
@@ -190,6 +227,46 @@ function AppContent() {
           />
         </Routes>
       </main>
+      <div className="fixed bottom-4 right-4">
+        <button
+          className="bg-blue-500 text-white p-3 rounded-full shadow-lg"
+          onClick={toggleChat}
+        >
+          <FontAwesomeIcon icon={isChatOpen ? faTimes : faComments} />
+        </button>
+        {isChatOpen && (
+          <div className="w-80 bg-white border border-gray-300 rounded-lg shadow-lg mt-2">
+            <div className="p-4">
+              <div className="flex justify-between items-center">
+                <h2 className="text-lg font-semibold">Chat with our AI</h2>
+                <button
+                  className="text-red-500"
+                  onClick={clearChatMessages}
+                >
+                  <FontAwesomeIcon icon={faTrash} />
+                </button>
+              </div>
+              <div className="h-64 overflow-y-auto">
+                {chatMessages.map((msg, index) => (
+                  <div key={index} className={`my-2 p-2 rounded ${msg.sender === "user" ? "bg-blue-100 text-right" : "bg-gray-100 text-left"}`}>
+                    {msg.text}
+                  </div>
+                ))}
+              </div>
+              <form onSubmit={handleChatSubmit} className="mt-4">
+                <input
+                  type="text"
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  className="w-full p-2 border rounded"
+                  placeholder="Type your message..."
+                />
+                <button type="submit" className="w-full mt-2 p-2 bg-blue-500 text-white rounded">Send</button>
+              </form>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

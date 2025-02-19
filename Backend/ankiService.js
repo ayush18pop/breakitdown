@@ -23,7 +23,7 @@ async function generateBackContent(front) {
 
 async function generateFrontContent(front) {
   try {
-    const prompt = `Provide an effective question for the following text suitable for flashcards:
+    const prompt = `Provide a question out of this information, a short question for active recall:
     
     "${front}"`;
 
